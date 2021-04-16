@@ -1,126 +1,127 @@
 /**
 @page Features Features and Architecture
 
-ENet evolved specifically as a UDP networking layer for the
-multiplayer first person shooter Cube. Cube necessitated low latency
-communication with data sent out very frequently, so TCP was an
-unsuitable choice due to its high latency and stream orientation. UDP,
-however, lacks many sometimes necessary features from TCP such as
-reliability, sequencing, unrestricted packet sizes, and connection
-management. So UDP by itself was not suitable as a network protocol
-either. No suitable freely available networking libraries existed at
-the time of ENet's creation to fill this niche.
+ENet a évolué spécifiquement en tant que couche réseau UDP pour le
+jeu de tir à la première personne multijoueur Cube. Le cube nécessitait une faible latence
+communication avec des données envoyées très fréquemment, TCP était donc un
+choix inadapté en raison de sa latence élevée et de son orientation de flux. UDP,
+cependant, il manque de nombreuses fonctionnalités parfois nécessaires de TCP telles que
+fiabilité, séquençage, tailles de paquet illimitées et connexion
+la gestion. Donc, UDP en lui-même ne convenait pas en tant que protocole réseau
+Soit. Il n'existait pas de bibliothèques réseau appropriées disponibles gratuitement à
+le temps de la création d'ENet pour combler ce créneau.
 
-UDP and TCP could have been used together in Cube to benefit somewhat
-from both of their features, however, the resulting combinations of
-protocols still leaves much to be desired. TCP lacks multiple streams
-of communication without resorting to opening many sockets and
-complicates delineation of packets due to its buffering behavior. UDP
-lacks sequencing, connection management, management of bandwidth
-resources, and imposes limitations on the size of packets. A
-significant investment is required to integrate these two protocols,
-and the end result is worse off in features and performance than the
-uniform protocol presented by ENet.
+UDP et TCP auraient pu être utilisés ensemble dans Cube pour en tirer un certain bénéfice
+de leurs deux caractéristiques, cependant, les combinaisons résultantes de
+les protocoles laissent encore beaucoup à désirer. TCP manque de plusieurs flux
+de communication sans recourir à l'ouverture de nombreuses prises et
+complique la délimitation des paquets en raison de son comportement de mise en mémoire tampon. UDP
+manque de séquençage, de gestion des connexions, de gestion de la bande passante
+ressources, et impose des limitations sur la taille des paquets. UNE
+un investissement important est nécessaire pour intégrer ces deux protocoles,
+et le résultat final est moins performant en termes de fonctionnalités et de performances que le
+protocole uniforme présenté par ENet.
 
-ENet thus attempts to address these issues and provide a single,
-uniform protocol layered over UDP to the developer with the best
-features of UDP and TCP as well as some useful features neither
-provide, with a much cleaner integration than any resulting from a
-mixture of UDP and TCP.
+ENet tente ainsi de résoudre ces problèmes et de fournir un
+protocole uniforme en couches sur UDP pour le développeur avec le meilleur
+fonctionnalités d'UDP et TCP ainsi que certaines fonctionnalités utiles ni
+fournir, avec une intégration beaucoup plus propre que tout résultant d'un
+mélange d'UDP et de TCP.
 
-@section CM Connection Management
+Gestion des connexions @section CM
 
-ENet provides a simple connection interface over which to communicate
-with a foreign host. The liveness of the connection is actively
-monitored by pinging the foreign host at frequent intervals, and also
-monitors the network conditions from the local host to the foreign
-host such as the mean round trip time and packet loss in this fashion.
+ENet fournit une interface de connexion simple sur laquelle communiquer
+avec un hôte étranger. La vivacité de la connexion est activement
+surveillé en envoyant une requête ping à l'hôte étranger à intervalles fréquents, et aussi
+surveille les conditions du réseau de l'hôte local à l'étranger
+hôte comme le temps moyen d'aller-retour et la perte de paquets de cette manière.
 
-@section Sequencing Sequencing
+@section Séquençage Séquençage
     
-Rather than a single byte stream that complicates the delineation of
-packets, ENet presents connections as multiple, properly sequenced
-packet streams that simplify the transfer of various types of data.
+Plutôt qu'un flux d'octets qui complique la délimitation de
+paquets, ENet présente les connexions comme multiples, correctement séquencées
+des flux de paquets qui simplifient le transfert de différents types de données.
 
-ENet provides sequencing for all packets by assigning to each sent
-packet a sequence number that is incremented as packets are sent. ENet
-guarantees that no packet with a higher sequence number will be
-delivered before a packet with a lower sequence number, thus ensuring
-packets are delivered exactly in the order they are sent.
+ENet fournit le séquençage pour tous les paquets en attribuant à chaque envoyé
+paquet un numéro de séquence qui est incrémenté au fur et à mesure que les paquets sont envoyés. ENet
+garantit qu'aucun paquet avec un numéro de séquence plus élevé ne sera
+livré avant un paquet avec un numéro de séquence inférieur, assurant ainsi
+les paquets sont livrés exactement dans l'ordre d'envoi.
 
-For unreliable packets, ENet will simply discard the lower sequence
-number packet if a packet with a higher sequence number has already
-been delivered. This allows the packets to be dispatched immediately
-as they arrive, and reduce latency of unreliable packets to an
-absolute minimum.  For reliable packets, if a higher sequence number
-packet arrives, but the preceding packets in the sequence have not yet
-arrived, ENet will stall delivery of the higher sequence number
-packets until its predecessors have arrived.
+Pour les paquets non fiables, ENet rejettera simplement la séquence inférieure
+numéro de paquet si un paquet avec un numéro de séquence plus élevé a déjà
+été livré. Cela permet aux paquets d'être expédiés immédiatement
+à leur arrivée, et réduisez la latence des paquets non fiables à un
+minimum absolu. Pour des paquets fiables, si un numéro de séquence plus élevé
+le paquet arrive, mais les paquets précédents de la séquence n'ont pas encore
+arrivé, ENet bloquera la livraison du numéro de séquence le plus élevé
+paquets jusqu'à ce que ses prédécesseurs soient arrivés.
 
-@section Channels Channels
+@section Canaux Canaux
 
-Since ENet will stall delivery of reliable packets to ensure proper
-sequencing, and consequently any packets of higher sequence number
-whether reliable or unreliable, in the event the reliable packet's
-predecessors have not yet arrived, this can introduce latency into the
-delivery of other packets which may not need to be as strictly ordered
-with respect to the packet that stalled their delivery.
+Puisque ENet bloquera la livraison de paquets fiables pour assurer une
+séquençage, et par conséquent tous les paquets de numéro de séquence plus élevé
+si fiable ou non fiable, dans le cas où le paquet fiable
+les prédécesseurs ne sont pas encore arrivés, cela peut introduire une latence dans le
+la livraison d'autres paquets qui peuvent ne pas avoir besoin d'être aussi strictement commandés
+en ce qui concerne le paquet qui a bloqué leur livraison.
 
-To combat this latency and reduce the ordering restrictions on
-packets, ENet provides multiple channels of communication over a given
-connection.  Each channel is independently sequenced, and so the
-delivery status of a packet in one channel will not stall the delivery
-of other packets in another channel.
+Pour lutter contre cette latence et réduire les restrictions de commande sur
+paquets, ENet fournit plusieurs canaux de communication sur un
+lien. Chaque canal est séquencé indépendamment, de sorte que le
+l'état de livraison d'un paquet dans un canal ne bloquera pas la livraison
+d'autres paquets dans un autre canal.
 
-@section Reliability Reliability
+@section Fiabilité Fiabilité
 
-ENet provides optional reliability of packet delivery by ensuring the
-foreign host acknowledges receipt of all reliable packets. ENet will
-attempt to resend the packet up to a reasonable amount of times, if no
-acknowledgement of the packet's receipt happens within a specified
-timeout. Retry timeouts are progressive and become more lenient with
-every failed attempt to allow for temporary turbulence in network
+ENet offre une fiabilité facultative de la livraison des paquets
+l'hôte étranger accuse réception de tous les paquets fiables. ENet va
+tenter de renvoyer le paquet jusqu'à un nombre raisonnable de fois, si non
+l'accusé de réception du paquet se produit dans un délai spécifié
+temps libre. Les délais d'attente pour les tentatives sont progressifs et deviennent plus clémentes avec
+chaque tentative infructueuse de permettre une turbulence temporaire dans le réseau
 conditions.
 
-@section FaR Fragmentation and Reassembly
+@section FaR Fragmentation et réassemblage
 
-ENet will send and deliver packets regardless of size. Large packets
-are fragmented into many smaller packets of suitable size, and
-reassembled on the foreign host to recover the original packet for
-delivery. The process is entirely transparent to the developer.
+ENet enverra et livrera des paquets quelle que soit leur taille. Grands paquets
+sont fragmentés en plusieurs petits paquets de taille appropriée, et
+réassemblé sur l'hôte étranger pour récupérer le paquet d'origine pour
+livraison. Le processus est entièrement transparent pour le développeur.
 
-@section Aggregation Aggregation
+@section Agrégation Agrégation
 
-ENet aggregates all protocol commands, including acknowledgements and
-packet transfer, into larger protocol packets to ensure the proper
-utilization of the connection and to limit the opportunities for
-packet loss that might otherwise result in further delivery latency.
+ENet regroupe toutes les commandes de protocole, y compris les accusés de réception et
+transfert de paquets, dans des paquets de protocole plus volumineux pour assurer le bon
+l'utilisation de la connexion et de limiter les opportunités
+perte de paquets qui pourrait autrement entraîner une latence de livraison supplémentaire.
 
-@section Adaptability Adaptability
+@section Adaptabilité Adaptabilité
 
-ENet provides an in-flight data window for reliable packets to ensure
-connections are not overwhelmed by volumes of packets. It also
-provides a static bandwidth allocation mechanism to ensure the total
-volume of packets sent and received to a host don't exceed the host's
-capabilities. Further, ENet also provides a dynamic throttle that
-responds to deviations from normal network connections to rectify
-various types of network congestion by further limiting the volume of
-packets sent.
+ENet fournit une fenêtre de données en vol pour des paquets fiables afin de garantir
+les connexions ne sont pas submergées par des volumes de paquets. Ça aussi
+fournit un mécanisme d'allocation de bande passante statique pour assurer le total
+le volume de paquets envoyés et reçus à un hôte ne dépasse pas celui de l'hôte
+capacités. En outre, ENet fournit également un accélérateur dynamique qui
+répond aux écarts par rapport aux connexions réseau normales pour rectifier
+divers types de congestion du réseau en limitant davantage le volume de
+paquets envoyés.
 
-@section Portability Portability
+@section Portabilité Portabilité
     
-ENet works on Windows and any other Unix or Unix-like platform
-providing a BSD sockets interface. The library has a small and stable
-code base that can easily be extended to support other platforms and
-integrates easily.  ENet makes no assumptions about the underlying
-platform's endianess or word size.
+ENet fonctionne sur Windows et toute autre plate-forme de type Unix ou Unix
+fournissant une interface de sockets BSD. La bibliothèque a un petit et stable
+base de code qui peut facilement être étendue pour prendre en charge d'autres plates-formes et
+s'intègre facilement. ENet ne fait aucune hypothèse sur le sous-jacent
+endianess ou taille de mot de la plate-forme.
 
-@section Freedom Freedom
+@section Liberté Liberté
 
-ENet demands no royalties and doesn't carry a viral license that would
-restrict you in how you might use it in your programs. ENet is
-licensed under a short-and-sweet MIT-style license, which gives you
-the freedom to do anything you want with it (well, almost anything).
+ENet ne demande aucune redevance et ne porte pas de licence virale qui
+vous restreindre dans la façon dont vous pourriez l’utiliser dans vos programmes. ENet est
+sous licence sous une licence de style MIT courte et douce, qui vous donne
+la liberté d'en faire tout ce que vous voulez (enfin, presque tout).
 
 */
+
 
