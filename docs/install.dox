@@ -1,63 +1,66 @@
 /**
-@page Installation Installation
 
-ENet should be trivially simple to integrate with most applications.
-First, make sure you download the latest source distribution at @ref Downloads.
+@Installation de ENet.
 
-@section Unix Unix-like Operating Systems
+ENet doit être très simple à intégrer à la plupart des applications.
+Tout d'abord, assurez-vous de télécharger la dernière distribution 
+source sur @ref Downloads.
 
-If you are using an ENet release, then you should simply be able to build it
-by doing the following:
+@section Systèmes d'exploitation de type Unix / Linux
+
+Si vous utilisez une version ENet, vous devriez simplement pouvoir 
+la construire en procédant comme suit:
 
 ./configure && make && make install
 
-If you obtained the package from github, you must have automake and autoconf
-available to generate the build system first by doing the following command
-before using the above mentioned build procedure:
+Si vous avez obtenu le package de github, 
+vous devez avoir automake et autoconf disponible pour générer d'abord 
+le système de construction en exécutant la commande suivante avant 
+d'utiliser la procédure de construction mentionnée ci-dessus:
 
 autoreconf -vfi
 
+@subsection SolarisBSD Solaris et BSD
 
-@subsection SolarisBSD Solaris and BSD
-
-When building ENet under Solaris, you must specify the -lsocket and
--lnsl parameters to your compiler to ensure that the sockets library
-is linked in.
+Lors de la construction d'ENet sous Solaris, vous devez spécifier 
+le -lsocket et -lnsl paramètres à votre compilateur pour garantir 
+que la bibliothèque de sockets est lié.
 
 @section Windows Microsoft Windows
 
-You may simply use the included "enet.lib" or "enet64.lib" static libraries. 
-However, if you wish to build the library yourself, then the following
-instructions apply:
+Vous pouvez simplement utiliser les bibliothèques statiques 
+"enet.lib" ou "enet64.lib" incluses. 
+Cependant, si vous souhaitez créer la bibliothèque vous-même, 
+les éléments suivants les instructions s'appliquent:
 
-There is an included MSVC 6 project (enet.dsp) which you may use to
-build a suitable library file. Alternatively, you may simply drag all 
-the ENet source files into your main project.
+Il existe un projet MSVC 6 inclus (enet.dsp) que vous pouvez utiliser 
+pour créez un fichier de bibliothèque approprié. 
 
-You will have to link to the Winsock2 libraries, so make sure to add
-ws2_32.lib and winmm.lib to your library list (Project Settings | Link |
-Object/library modules).
+Alternativement, vous pouvez simplement faire glisser tout les fichiers 
+source ENet dans votre projet principal.
 
-@subsection enet.dsp Building with the included enet.dsp
+Vous devrez créer un lien vers les bibliothèques Winsock2, 
+alors assurez-vous d'ajouter ws2_32.lib et winmm.lib à votre liste de 
+bibliothèques (Paramètres du projet | Lien | Modules objet / bibliothèque).
 
-Load the included enet.dsp. MSVC may ask you to convert it if you
-are on a newer version of MSVC - just allow the conversion and save
-the resulting project as "enet" or similar. After you build this
-project, it will output an "enet.lib" file to either the "Debug/"
-or "Release/" directory, depending on which configuration you have
-selected to build. By default, it should produce "Debug/enet.lib".
+@subsection enet.dsp Construction avec le enet.dsp inclus
 
-You may then copy the resulting "enet.lib" file and the header files
-found in the "include/" directory to your other projects and add it to 
-their library lists. Make sure to also link against "ws2_32.lib" and
-"winmm.lib" as described above.
+Chargez le fichier enet.dsp inclus.
+MSVC peut vous demander de le convertir si vous utilisez une version plus récente de MSVC 
+- autorisez simplement la conversion et enregistrez le projet résultant sous «enet» ou similaire. 
 
-@subsection DLL DLL
+Après avoir créé ce projet, il affichera un fichier "enet.lib" dans le répertoire "Debug /" ou "Release /",
+selon la configuration que vous avez choisie pour construire. Vous pouvez ensuite copier le fichier 
+"enet.lib" résultant et les fichiers d'en-tête trouvé dans le répertoire "include /" de vos autres 
+projets et ajoutez-le à leurs listes de bibliothèques. 
+Assurez-vous également de créer un lien avec "ws2_32.lib" et "winmm.lib" comme décrit ci-dessus.
 
-If you wish to build ENet as a DLL you must first define ENET_DLL
-within the project (Project Settings | C/C++ | Preprocessor |
-Preprocessor definitions) or, more invasively, simply define ENET_DLL
-at the top of enet.h.
+DLL DLL @subsection
+
+Si vous souhaitez construire ENet en tant que DLL, vous devez d'abord définir ENET_DLL
+dans le projet (Paramètres du projet | C / C ++ | Préprocesseur |
+Définitions de préprocesseur) ou, de manière plus invasive, définissez simplement ENET_DLL
+en haut de enet.h.
 
 */
 
